@@ -106,15 +106,25 @@ export default function Home() {
     });
   }
 
+  function resetBoard() {
+    setBoardState(createEmptyBoard());
+  }
+
   return (
     <section className=' flex flex-col items-center'>
       <h1 className='text-3xl font-serif my-4'>Conway&apos;s Game of Life</h1>
-      <button
-        className='bg-blue-500 text-white px-4 py-2 rounded'
-        onClick={calculateNextGeneration}
-      >
-        Next
-      </button>
+      <section className='flex gap-4 mb-4'>
+        <button
+          className='bg-blue-500 text-white px-4 py-2 rounded'
+          onClick={calculateNextGeneration}
+        >
+          Next
+        </button>
+        <button className='bg-red-500 text-white px-4 py-2 rounded' onClick={resetBoard}>
+          Reset
+        </button>
+      </section>
+
       <canvas
         onClick={(e) => {
           const x = Math.floor(e.nativeEvent.offsetX / GRID_SIZE);
