@@ -32,6 +32,7 @@ function createEmptyBoard(): Board {
 export default function Home() {
   const emptyBoard = createEmptyBoard();
   const [boardState, setBoardState] = useState<Board>(emptyBoard);
+  const [prevBoardState, setPrevBoardState] = useState<Board>(emptyBoard);
   const canvasRef = useRef<null | HTMLCanvasElement>(null);
 
   // console.log('Initial board state:', boardState);
@@ -69,9 +70,12 @@ export default function Home() {
   }, [boardState, canvasRef]);
 
   function calculateNextGeneration() {
-    setBoardState((prevBoardState) => {
+    setBoardState((prevState) => {
+      // Save the previous board state
       // Create a new grid by copying the current grid
-      const newBoardState = prevBoardState.map((arr) => [...arr]);
+      const prevBoard = [...prevState];
+      setPrevBoardState(prevBoard);
+      const newBoardState = prevState.map((arr) => [...arr]);
 
       for (let row = 0; row < NUMBER_OF_ROWS; row++) {
         for (let col = 0; col < NUMBER_OF_COLUMNS; col++) {
@@ -89,14 +93,14 @@ export default function Home() {
               neighborCol >= 0 &&
               neighborCol < NUMBER_OF_COLUMNS
             ) {
-              liveNeighbors += prevBoardState[neighborRow][neighborCol] ? 1 : 0;
+              liveNeighbors += prevState[neighborRow][neighborCol] ? 1 : 0;
             }
           });
 
           // Apply Conway's Game of Life rules
           if (liveNeighbors < 2 || liveNeighbors > 3) {
             newBoardState[row][col] = 0;
-          } else if (prevBoardState[row][col] === 0 && liveNeighbors === 3) {
+          } else if (prevState[row][col] === 0 && liveNeighbors === 3) {
             newBoardState[row][col] = 1;
           }
         }
@@ -104,6 +108,10 @@ export default function Home() {
 
       return newBoardState;
     });
+  }
+
+  function calculatePreviousGeneration() {
+    setBoardState(prevBoardState);
   }
 
   function resetBoard() {
@@ -115,12 +123,21 @@ export default function Home() {
       <h1 className='text-3xl font-serif my-4'>Conway&apos;s Game of Life</h1>
       <section className='flex gap-4 mb-4'>
         <button
+          className='bg-gray-500 text-white px-4 py-2 rounded'
+          onClick={calculatePreviousGeneration}
+        >
+          Previous
+        </button>
+        <button
           className='bg-blue-500 text-white px-4 py-2 rounded'
           onClick={calculateNextGeneration}
         >
           Next
         </button>
-        <button className='bg-red-500 text-white px-4 py-2 rounded' onClick={resetBoard}>
+        <button
+          className='bg-red-500 text-white px-4 py-2 rounded'
+          onClick={resetBoard}
+        >
           Reset
         </button>
       </section>
