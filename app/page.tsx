@@ -61,6 +61,18 @@ export default function Home() {
     <section className=' flex flex-col items-center'>
       <h1 className='text-3xl font-serif my-4'>Conway&apos;s Game of Life</h1>
       <canvas
+        onClick={(e) => {
+            const x = Math.floor(e.nativeEvent.offsetX / GRID_SIZE);
+            const y = Math.floor(e.nativeEvent.offsetY / GRID_SIZE);
+
+            const updatedBoardState = [...boardState];
+            if (updatedBoardState[x][y] === 0) {
+              updatedBoardState[x][y] = 1;
+            } else {
+              updatedBoardState[x][y] = 0;
+            }
+            setBoardState(updatedBoardState);
+          }}
         className='border border-green-500'
         ref={canvasRef}
         width={BOARD_WIDTH}
