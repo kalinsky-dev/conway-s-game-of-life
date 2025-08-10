@@ -33,6 +33,7 @@ export default function Home() {
   const emptyBoard = createEmptyBoard();
   const [boardState, setBoardState] = useState<Board>(emptyBoard);
   const [prevBoardState, setPrevBoardState] = useState<Board>(emptyBoard);
+  const [isPlaying, setIsPlaying] = useState(false);
   const canvasRef = useRef<null | HTMLCanvasElement>(null);
 
   // console.log('Initial board state:', boardState);
@@ -73,9 +74,9 @@ export default function Home() {
     setBoardState((prevState) => {
       // Save the previous board state
       // Create a new grid by copying the current grid
-      const prevBoard = [...prevState];
+      const prevBoard = prevState.map((row) => [...row]);
       setPrevBoardState(prevBoard);
-      const newBoardState = prevState.map((arr) => [...arr]);
+      const newBoardState = prevState.map((row) => [...row]);
 
       for (let row = 0; row < NUMBER_OF_ROWS; row++) {
         for (let col = 0; col < NUMBER_OF_COLUMNS; col++) {
@@ -116,6 +117,11 @@ export default function Home() {
 
   function resetBoard() {
     setBoardState(createEmptyBoard());
+    setPrevBoardState(createEmptyBoard());
+  }
+
+  function togglePlay() {
+    setIsPlaying(!isPlaying);
   }
 
   return (
@@ -139,6 +145,12 @@ export default function Home() {
           onClick={resetBoard}
         >
           Reset
+        </button>
+        <button
+          className='bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600'
+          onClick={togglePlay}
+        >
+          {isPlaying ? 'Pause' : 'Play'}
         </button>
       </section>
 
