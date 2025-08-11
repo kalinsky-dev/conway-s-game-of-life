@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 type Board = number[][];
 
@@ -35,6 +35,8 @@ export default function Home() {
   const [prevBoardState, setPrevBoardState] = useState<Board>(emptyBoard);
   const [isPlaying, setIsPlaying] = useState(false);
   const canvasRef = useRef<null | HTMLCanvasElement>(null);
+  const playingRef = useRef(isPlaying);
+  playingRef.current = isPlaying;
 
   // console.log('Initial board state:', boardState);
 
@@ -70,46 +72,60 @@ export default function Home() {
     }
   }, [boardState, canvasRef]);
 
-  function calculateNextGeneration() {
-    setBoardState((prevState) => {
-      // Save the previous board state
-      // Create a new grid by copying the current grid
-      const prevBoard = prevState.map((row) => [...row]);
-      setPrevBoardState(prevBoard);
-      const newBoardState = prevState.map((row) => [...row]);
+  const calculateNextBoardState = (prevState: Board): Board => {
+    const newBoardState = prevState.map((row) => [...row]);
 
-      for (let row = 0; row < NUMBER_OF_ROWS; row++) {
-        for (let col = 0; col < NUMBER_OF_COLUMNS; col++) {
-          let liveNeighbors = 0;
+    for (let row = 0; row < NUMBER_OF_ROWS; row++) {
+      for (let col = 0; col < NUMBER_OF_COLUMNS; col++) {
+        let liveNeighbors = 0;
 
-          // Check all neighboring cells
-          DIRECTIONS.forEach(([directionX, directionY]) => {
-            const neighborRow = row + directionX;
-            const neighborCol = col + directionY;
+        // Check all neighboring cells
+        DIRECTIONS.forEach(([directionX, directionY]) => {
+          const neighborRow = row + directionX;
+          const neighborCol = col + directionY;
 
-            // Ensure the neighbor is within grid bounds
-            if (
-              neighborRow >= 0 &&
-              neighborRow < NUMBER_OF_ROWS &&
-              neighborCol >= 0 &&
-              neighborCol < NUMBER_OF_COLUMNS
-            ) {
-              liveNeighbors += prevState[neighborRow][neighborCol] ? 1 : 0;
-            }
-          });
-
-          // Apply Conway's Game of Life rules
-          if (liveNeighbors < 2 || liveNeighbors > 3) {
-            newBoardState[row][col] = 0;
-          } else if (prevState[row][col] === 0 && liveNeighbors === 3) {
-            newBoardState[row][col] = 1;
+          // Ensure the neighbor is within grid bounds
+          if (
+            neighborRow >= 0 &&
+            neighborRow < NUMBER_OF_ROWS &&
+            neighborCol >= 0 &&
+            neighborCol < NUMBER_OF_COLUMNS
+          ) {
+            liveNeighbors += prevState[neighborRow][neighborCol] ? 1 : 0;
           }
+        });
+
+        // Apply Conway's Game of Life rules
+        if (liveNeighbors < 2 || liveNeighbors > 3) {
+          newBoardState[row][col] = 0;
+        } else if (prevState[row][col] === 0 && liveNeighbors === 3) {
+          newBoardState[row][col] = 1;
         }
       }
+    }
 
-      return newBoardState;
+    return newBoardState;
+  };
+
+  const calculateNextGeneration = useCallback(() => {
+    if (!playingRef.current) {
+      return;
+    }
+    setBoardState((prevState) => {
+      const prevBoard = prevState.map((row) => [...row]);
+      setPrevBoardState(prevBoard);
+      return calculateNextBoardState(prevState);
     });
-  }
+    setTimeout(calculateNextGeneration, 100);
+  }, [setBoardState, setPrevBoardState]);
+
+  const calculateNextGenerationOnce = useCallback(() => {
+    setBoardState((prevState) => {
+      const prevBoard = prevState.map((row) => [...row]);
+      setPrevBoardState(prevBoard);
+      return calculateNextBoardState(prevState);
+    });
+  }, [setBoardState, setPrevBoardState]);
 
   function calculatePreviousGeneration() {
     setBoardState(prevBoardState);
@@ -118,10 +134,6 @@ export default function Home() {
   function resetBoard() {
     setBoardState(createEmptyBoard());
     setPrevBoardState(createEmptyBoard());
-  }
-
-  function togglePlay() {
-    setIsPlaying(!isPlaying);
   }
 
   return (
@@ -136,7 +148,7 @@ export default function Home() {
         </button>
         <button
           className='bg-blue-500 text-white px-4 py-2 rounded'
-          onClick={calculateNextGeneration}
+          onClick={() => calculateNextGenerationOnce()}
         >
           Next
         </button>
@@ -148,7 +160,13 @@ export default function Home() {
         </button>
         <button
           className='bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600'
-          onClick={togglePlay}
+          onClick={() => {
+            setIsPlaying(!isPlaying);
+            if (!isPlaying) {
+              playingRef.current = true;
+              calculateNextGeneration();
+            }
+          }}
         >
           {isPlaying ? 'Pause' : 'Play'}
         </button>
