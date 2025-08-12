@@ -26,6 +26,7 @@ export default function ConwayGameOfLife() {
   const canvasRef = useRef<null | HTMLCanvasElement>(null);
   const playingRef = useRef(isPlaying);
   playingRef.current = isPlaying;
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // console.log('Initial board state:', boardState);
 
@@ -71,6 +72,15 @@ export default function ConwayGameOfLife() {
     }
     setPopulation(aliveCount);
   }, [boardState]);
+
+  // Cleanup `setTimeout` on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleCanvasClick = (e: MouseEvent<HTMLCanvasElement>) => {
     if (playingRef.current) return; // Prevent editing while playing
@@ -142,8 +152,12 @@ export default function ConwayGameOfLife() {
 
   const calculateNextGeneration = useCallback(() => {
     if (!playingRef.current) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
       return;
     }
+
     setBoardState((prevState) => {
       const prevBoard = prevState.map((row) => [...row]);
       setPrevBoardState(prevBoard);
@@ -151,7 +165,7 @@ export default function ConwayGameOfLife() {
       return calculateNextBoardState(prevState);
     });
     setGeneration((prev) => prev + 1);
-    setTimeout(calculateNextGeneration, 100);
+    timeoutRef.current = setTimeout(calculateNextGeneration, 100);
   }, [setBoardState, setPrevBoardState]);
 
   const calculatePreviousGeneration = () => {
@@ -166,6 +180,9 @@ export default function ConwayGameOfLife() {
     setPrevBoardState(createEmptyBoard());
     setGeneration(0);
     setHasPreviousState(false);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current); // Stop the loop when resetting
+    }
   };
 
   return (
