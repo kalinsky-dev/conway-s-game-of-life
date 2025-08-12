@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+# Conway's Game of Life
+
+A React-based implementation of Conway's Game of Life cellular automaton built with Next.js and TypeScript.
+
+## Features
+
+- **Interactive Grid**: Click cells to toggle between alive/dead states
+- **Playback Controls**: Play/Pause, Next, Previous, and Reset buttons
+- **Real-time Statistics**: Live generation counter and population display
+- **Canvas Rendering**: Smooth HTML5 canvas visualization with grid lines
+- **Responsive Design**: Clean UI built with Tailwind CSS
+
+## Game Rules
+
+- Any live cell with fewer than two live neighbors dies (underpopulation)
+- Any live cell with two or three live neighbors survives
+- Any live cell with more than three live neighbors dies (overpopulation)
+- Any dead cell with exactly three live neighbors becomes alive (reproduction)
+
+## Tech Stack
+
+- **Framework**: Next.js 15, React 19 with TypeScript
+- **Styling**: Tailwind CSS
+- **Rendering**: HTML5 Canvas API
+- **State Management**: React Hooks (useState, useEffect, useCallback, useRef)
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+Open http://localhost:3000 to play with the Game of Life!
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Controls
+* Click: Toggle cell state
+* Play/Pause: Start/stop automatic generation
+* Next: Advance one generation
+* Previous: Go back one generation
+* Reset: Clear the board
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Demo
+Create interesting patterns and watch them evolve according to Conway's rules.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<img width="906" height="1062" alt="CGofLife" src="https://github.com/user-attachments/assets/7cbf641a-13f0-4537-a929-c8fbb210de91" />
